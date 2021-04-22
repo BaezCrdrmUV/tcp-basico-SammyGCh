@@ -30,14 +30,19 @@ namespace tcp_com
         public void Chat()
         {
             client.Connect(IP, Port);   
-            Console.WriteLine("Conectado");
+            Console.WriteLine("Conectado\n");
 
             while(true)
             {
                 try
                 {
                     string msg = Console.ReadLine();
-                    Message newMessage = new Message(msg, Username);
+                    Message newMessage = new Message 
+                    {
+                        MessageString = msg,
+                        User = Username,
+                        Hora = DateTime.Now
+                    };
                     string jsonMessage = JsonConvert.SerializeObject(newMessage);
 
                     // Envío de datos
@@ -50,6 +55,12 @@ namespace tcp_com
                     byte[] package = new byte[1024];
                     stream.Read(package);
                     string serverMessage = Encoding.UTF8.GetString(package);
+                    if (serverMessage.Equals("Chat terminado"))
+                    {
+                        Console.WriteLine("El chat fue terminado");
+                        break;
+                    }
+
                     Console.WriteLine(serverMessage);
                 }
                 catch (Exception ex)

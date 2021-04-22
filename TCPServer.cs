@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace tcp_com
 {
@@ -39,11 +40,12 @@ namespace tcp_com
                         Console.WriteLine("Cliente conectado. Esperando datos");
                         var client = clientTask.Result;
                         string msg = "";
+                        byte[] data;
 
                         while(msg != null && !msg.StartsWith("bye"))
                         {
                             // Enviar un mensaje al cliente
-                            byte[] data = Encoding.UTF8.GetBytes("Envía datos. Envía \"bye\" para terminar");
+                            data = Encoding.UTF8.GetBytes("Envía datos. Envía \"bye\" para terminar");
                             client.Send(data);
 
                             // Escucha por nuevos mensajes
@@ -51,8 +53,16 @@ namespace tcp_com
                             client.Receive(buffer);
 
                             msg = Encoding.UTF8.GetString(buffer);
-                            Console.WriteLine(msg);
+
+                            Message mensaje = JsonConvert.DeserializeObject<Message>(msg);
+                            msg = mensaje.MessageString;
+
+                            Console.WriteLine($"{mensaje.User} ({mensaje.Hora.ToString("HH:mm")}) > {mensaje.MessageString}");
                         }
+
+                        data = Encoding.UTF8.GetBytes("Chat terminado");
+                        client.Send(data);
+
                         Console.WriteLine("Cerrando conexión");
                         client.Dispose();
                     }

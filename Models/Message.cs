@@ -1,9 +1,13 @@
+using System;
+
 namespace tcp_com
 {
     public class Message
     {
         public string MessageString { get; set; }
         public string User { get; set; }
+
+        public DateTime Hora { get; set; }
 
         public Message()
         {
